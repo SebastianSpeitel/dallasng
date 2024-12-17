@@ -21,9 +21,19 @@ namespace esphome
         ESP_LOGI(TAG, "Found dallas device 0x%s", format_hex(address).c_str());
         this->found_sensors_.push_back(address);
       }
+      if (this->found_sensors_.empty())
+      {
+        ESP_LOGW(TAG, "No sensors found!");
+        status_set_warning();
+      }
+      else
+      {
+        ESP_LOGI(TAG, "Found %d sensors", this->found_sensors_.size());
+      }
 
       for (auto *sensor : sensors_)
       {
+        ESP_LOGD(TAG, "Setting up sensor");
         if (sensor->get_index().has_value())
         {
           auto index = *sensor->get_index();
@@ -40,6 +50,7 @@ namespace esphome
 
         if (!sensor->setup())
         {
+          ESP_LOGW(TAG, "Failed to setup sensor");
           status_set_error();
         }
       }
